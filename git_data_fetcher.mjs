@@ -253,11 +253,17 @@ const languages_icons = {
   JavaScript: "logos-javascript",
   "C#": "logos-c-sharp",
   Java: "logos-java",
-  Shell: "simple-icons:shell",
   Ruby: "logos:ruby",
   PHP: "logos-php",
   Dockerfile: "simple-icons:docker",
   Rust: "logos-rust",
+  "C++": "logos-c-plusplus",
+  TeX: "file-icons:latex",
+  Dart: "logos:dart",
+  Kotlin: "logos:kotlin",
+  C: "logos:c",
+  Verilog: "vscode-icons:file-type-verilog",
+
 };
 
 fetch(baseUrl, {
@@ -304,3 +310,74 @@ fetch(baseUrl, {
   .catch((error) =>
     console.log("Error occured in pinned projects 2", JSON.stringify(error))
   );
+
+
+  const query_all_projects = {
+    query: `
+      query { 
+        user(login: "${openSource.githubUserName}") { 
+          repositories(first: 100, orderBy: {field: CREATED_AT, direction: DESC}) {
+            totalCount
+            nodes {
+              id
+              name
+              createdAt
+              url
+              description
+              isFork
+              languages(first: 10) {
+                nodes {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+  };
+  
+  fetch(baseUrl, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(query_all_projects),
+  })
+    .then((response) => response.text())
+    .then((txt) => {
+      const data = JSON.parse(txt);
+      const projects = data["data"]["user"]["repositories"]["nodes"];
+      var newProjects = { data: [] };
+      for (var i = 0; i < projects.length; i++) {
+        var obj = projects[i];
+        var langobjs = obj["languages"]["nodes"];
+        var newLangobjs = [];
+        for (var j = 0; j < langobjs.length; j++) {
+          if (langobjs[j]["name"] in languages_icons) {
+            newLangobjs.push({
+              name: langobjs[j]["name"],
+              iconifyClass: languages_icons[langobjs[j]["name"]],
+            });
+          }
+        }
+        obj["languages"] = newLangobjs;
+        newProjects["data"].push(obj);
+      }
+  
+      console.log("Fetching all projects data.\n");
+      fs.writeFile(
+        "./src/shared/opensource/allprojects.json",
+        JSON.stringify(newProjects),
+        function (err) {
+          if (err) {
+            console.log(
+              "Error occurred while fetching projects",
+              JSON.stringify(err)
+            );
+          }
+        }
+      );
+    })
+    .catch((error) =>
+      console.log("Error occurred while fetching projects", JSON.stringify(error))
+    );
+  
