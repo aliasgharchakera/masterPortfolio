@@ -2,7 +2,7 @@
 
 // Website related settings
 const settings = {
-  isSplash: true, // Change this to false if you don't want Splash screen.
+  isSplash: false, // Change this to false if you don't want Splash screen.
 };
 
 //SEO Related settings
@@ -20,7 +20,7 @@ const seo = {
 //Home Page
 const greeting = {
   title: "Ali Asghar Chakera",
-  logo_name: "AshutoshHathidara",
+  logo_name: "AliAsghar Chakera",
   // nickname: "layman_brother",
   subTitle:
     "A passionate individual who always thrives to work on end to end products which develop sustainable and scalable social and technical systems to create impact.",
